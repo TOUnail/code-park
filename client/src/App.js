@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import HtmlEditor from "./components/HtmlEditor";
 import Editor from "./components/Editor";
 import Split from "react-split-it";
@@ -7,6 +7,21 @@ const App = () => {
   const [html, setHtml] = useState("");
   const [css, setCss] = useState("");
   const [js, setJs] = useState("");
+  const [srcDoc, setSrcDoc] = useState("");
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSrcDoc(`
+      <html>
+        <body>
+        <style>${css}</style>
+        ${html}
+        <script>${js}</script>
+        </body>
+      </html>
+    `);
+    }, 1000);
+    return () => clearTimeout(timeout);
+  }, [html, css, js]);
   return (
     <div className="main">
       <Split direction="vertical" minSize={150}>
@@ -36,26 +51,14 @@ const App = () => {
           </Split>
         </div>
         <div className="bottom">
-          <div className="bottom-inner">
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam
-              viverra urna magna, quis accumsan enim mollis sed. Nulla sodales
-              lacus nibh, non dapibus tortor lacinia ut. Vestibulum in cursus
-              ipsum. Quisque nec est rutrum leo lobortis vulputate molestie id
-              libero. Mauris tempus leo non erat feugiat iaculis. Vivamus ac
-              urna magna. Nullam scelerisque turpis velit, eget tincidunt augue
-              malesuada non. Vestibulum blandit mi neque, nec ullamcorper lectus
-              ultricies non. Fusce et massa vehicula lectus facilisis congue.
-            </p>
-          </div>
-          {/* <iframe
+          <iframe
             width="100%"
             height="100%"
-            src=""
+            srcDoc={srcDoc}
             title="output"
             frameBorder="0"
             sandbox="allow-scripts"
-          ></iframe> */}
+          ></iframe>
         </div>
       </Split>
     </div>
