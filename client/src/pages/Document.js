@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import HtmlEditor from "../components/HtmlEditor";
-import Editor from "../components/Editor";
+import CssEditor from "../components/CssEditor";
+import JsEditor from "../components/JsEditor";
 import Split from "react-split-it";
 import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
@@ -17,6 +18,11 @@ const Document = () => {
   useEffect(() => {
     if (s == null) return;
     setSocket(s);
+    s.once("load-document", (data) => {
+      setHtml(data.html);
+      setCss(data.css);
+      setJs(data.js);
+    });
     s.emit("get-document", id);
     return () => {
       s.disconnect();
@@ -33,6 +39,11 @@ const Document = () => {
         </body>
       </html>
     `);
+      s.emit("save-document", {
+        html: html,
+        css: css,
+        js: js,
+      });
     }, 1000);
     return () => clearTimeout(timeout);
   }, [html, css, js]);
@@ -51,17 +62,19 @@ const Document = () => {
               onChange={setHtml}
               socket={socket}
             />
-            <Editor
+            <CssEditor
               language="css"
               displayName="CSS"
               value={css}
               onChange={setCss}
+              socket={socket}
             />
-            <Editor
+            <JsEditor
               language="javascript"
               displayName="JS"
               value={js}
               onChange={setJs}
+              socket={socket}
             />
           </Split>
         </div>
