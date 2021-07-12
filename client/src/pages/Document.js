@@ -19,9 +19,9 @@ const Document = () => {
     if (s == null) return;
     setSocket(s);
     s.once("load-document", (data) => {
-      setHtml(data.html);
-      setCss(data.css);
-      setJs(data.js);
+      setHtml(data.html ? data.html : "");
+      setCss(data.css ? data.css : "");
+      setJs(data.js ? data.js : "");
     });
     s.emit("get-document", id);
     return () => {
@@ -40,9 +40,9 @@ const Document = () => {
       </html>
     `);
       s.emit("save-document", {
-        html: html,
-        css: css,
-        js: js,
+        html: html ? html : "",
+        css: css ? css : "",
+        js: js ? js : "",
       });
     }, 1000);
     return () => clearTimeout(timeout);

@@ -1,26 +1,35 @@
+const app = require("express")();
+const server = require("http").createServer(app);
+const cors = require("cors");
 const mongoose = require("mongoose");
 const Document = require("./Document");
 const dotenv = require("dotenv");
 dotenv.config();
-mongoose.connect(process.env.CONNECTION_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-// mongoose.connect("mongodb://localhost/code-park", {
+// mongoose.connect(process.env.CONNECTION_URL, {
 //   useNewUrlParser: true,
 //   useUnifiedTopology: true,
 //   useFindAndModify: false,
-//   useCreateIndex: true,
 // });
 
-const io = require("socket.io")(3001, {
-  cors: {
-    origin: "http://localhost:3000",
-    method: ["GET", "POST"],
-  },
+mongoose.connect("mongodb://localhost/code-park", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
 });
 
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+    method: ["GET", "POST"],
+  },
+  wsEngine: require("ws").Server,
+});
+app.use(cors());
+const PORT = process.env.PORT || 3001;
+app.get("/", (req, res) => {
+  res.send("Server is running");
+});
 const defaultValue = "";
 io.on("connection", (socket) => {
   console.log("connected");
@@ -51,3 +60,4 @@ async function findOrCreateDocument(id) {
   if (document) return document;
   return await Document.create({ _id: id, data: defaultValue });
 }
+server.listen(PORT, () => console.log(`server listening on port: ${PORT}`));
